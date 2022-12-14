@@ -9,6 +9,7 @@ import (
 	"context"
 	reference "github.com/crossplane/crossplane-runtime/pkg/reference"
 	errors "github.com/pkg/errors"
+	v1beta12 "github.com/upbound/provider-aws/apis/ec2/v1beta1"
 	v1beta11 "github.com/upbound/provider-aws/apis/iam/v1beta1"
 	v1beta1 "github.com/upbound/provider-aws/apis/s3/v1beta1"
 	common "github.com/upbound/provider-aws/config/common"
@@ -119,6 +120,50 @@ func (mg *Fleet) ResolveReferences(ctx context.Context, c client.Reader) error {
 	}
 	mg.Spec.ForProvider.InstanceRoleArn = reference.ToPtrValue(rsp.ResolvedValue)
 	mg.Spec.ForProvider.InstanceRoleArnRef = rsp.ResolvedReference
+
+	return nil
+}
+
+// ResolveReferences of this GameServerGroup.
+func (mg *GameServerGroup) ResolveReferences(ctx context.Context, c client.Reader) error {
+	r := reference.NewAPIResolver(c, mg)
+
+	var rsp reference.ResolutionResponse
+	var err error
+
+	for i3 := 0; i3 < len(mg.Spec.ForProvider.LaunchTemplate); i3++ {
+		rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+			CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.LaunchTemplate[i3].ID),
+			Extract:      resource.ExtractResourceID(),
+			Reference:    mg.Spec.ForProvider.LaunchTemplate[i3].IDRef,
+			Selector:     mg.Spec.ForProvider.LaunchTemplate[i3].IDSelector,
+			To: reference.To{
+				List:    &v1beta12.LaunchTemplateList{},
+				Managed: &v1beta12.LaunchTemplate{},
+			},
+		})
+		if err != nil {
+			return errors.Wrap(err, "mg.Spec.ForProvider.LaunchTemplate[i3].ID")
+		}
+		mg.Spec.ForProvider.LaunchTemplate[i3].ID = reference.ToPtrValue(rsp.ResolvedValue)
+		mg.Spec.ForProvider.LaunchTemplate[i3].IDRef = rsp.ResolvedReference
+
+	}
+	rsp, err = r.Resolve(ctx, reference.ResolutionRequest{
+		CurrentValue: reference.FromPtrValue(mg.Spec.ForProvider.RoleArn),
+		Extract:      common.ARNExtractor(),
+		Reference:    mg.Spec.ForProvider.RoleArnRef,
+		Selector:     mg.Spec.ForProvider.RoleArnSelector,
+		To: reference.To{
+			List:    &v1beta11.RoleList{},
+			Managed: &v1beta11.Role{},
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "mg.Spec.ForProvider.RoleArn")
+	}
+	mg.Spec.ForProvider.RoleArn = reference.ToPtrValue(rsp.ResolvedValue)
+	mg.Spec.ForProvider.RoleArnRef = rsp.ResolvedReference
 
 	return nil
 }

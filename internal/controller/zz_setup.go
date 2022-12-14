@@ -375,6 +375,7 @@ import (
 	alias "github.com/upbound/provider-aws/internal/controller/gamelift/alias"
 	build "github.com/upbound/provider-aws/internal/controller/gamelift/build"
 	fleetgamelift "github.com/upbound/provider-aws/internal/controller/gamelift/fleet"
+	gameservergroup "github.com/upbound/provider-aws/internal/controller/gamelift/gameservergroup"
 	gamesessionqueue "github.com/upbound/provider-aws/internal/controller/gamelift/gamesessionqueue"
 	script "github.com/upbound/provider-aws/internal/controller/gamelift/script"
 	accelerator "github.com/upbound/provider-aws/internal/controller/globalaccelerator/accelerator"
@@ -937,6 +938,7 @@ func Setup(mgr ctrl.Manager, o controller.Options) error {
 		alias.Setup,
 		build.Setup,
 		fleetgamelift.Setup,
+		gameservergroup.Setup,
 		gamesessionqueue.Setup,
 		script.Setup,
 		accelerator.Setup,

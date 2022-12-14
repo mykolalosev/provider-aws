@@ -1,0 +1,139 @@
+apiVersion: gamelift.aws.upbound.io/v1beta1
+kind: GameServerGroup
+metadata:
+  annotations:
+    meta.upbound.io/example-id: gamelift/v1beta1/gameservergroup
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    instanceDefinition:
+    - instanceType: c5.large
+    - instanceType: c5a.large
+    launchTemplate:
+    - idSelector:
+        matchLabels:
+          testing.upbound.io/example-name: example
+    maxSize: 1
+    minSize: 1
+    region: us-west-1
+    roleArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
+
+---
+
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: LaunchTemplate
+metadata:
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    region: us-west-1
+    blockDeviceMappings:
+      - deviceName: /dev/sda1
+        ebs:
+          - volumeSize: 20
+    capacityReservationSpecification:
+      - capacityReservationPreference: open
+    cpuOptions:
+      - coreCount: 4
+        threadsPerCore: 2
+    creditSpecification:
+      - cpuCredits: standard
+    disableApiTermination: true
+    ebsOptimized: "true"
+    elasticGpuSpecifications:
+      - type: test
+    elasticInferenceAccelerator:
+      - type: eia1.medium
+    instanceInitiatedShutdownBehavior: terminate
+    instanceMarketOptions:
+      - marketType: spot
+    instanceType: t2.micro
+    keyName: test
+    metadataOptions:
+      - httpEndpoint: enabled
+        httpPutResponseHopLimit: 1
+        httpTokens: required
+        instanceMetadataTags: enabled
+    monitoring:
+      - enabled: true
+    name: foo
+    networkInterfaces:
+      - associatePublicIpAddress: "true"
+    placement:
+      - availabilityZone: us-west-2a
+    tagSpecifications:
+      - resourceType: instance
+        tags:
+          Name: test
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Role
+metadata:
+  labels:
+    testing.upbound.io/example-name: example
+  name: gamelift-game-server-group-example
+spec:
+  forProvider:
+    assumeRolePolicy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "autoscaling.amazonaws.com",
+                "gamelift.amazonaws.com"
+              ]
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: RolePolicyAttachment
+metadata:
+  name: sample-policy-attachment
+  labels:
+    testing.upbound.io/example-name: role
+spec:
+  forProvider:
+    policyArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: role
+    roleSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
+
+---
+
+apiVersion: iam.aws.upbound.io/v1beta1
+kind: Policy
+metadata:
+  name: sample-user-policy
+  labels:
+    testing.upbound.io/example-name: role
+spec:
+  forProvider:
+    policy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Action": "gamelift:*",
+            "Effect": "Allow",
+            "Resource": "*"
+          }
+        ]
+      }

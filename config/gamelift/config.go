@@ -30,7 +30,7 @@ func Configure(p *config.Provider) {
 			Type:      "github.com/upbound/provider-aws/apis/iam/v1beta1.Role",
 			Extractor: common.PathARNExtractor,
 		}
-		r.References["launch_template.id"] = config.Reference{
+		r.References["aws_launch_template.id"] = config.Reference{
 			Type:      "github.com/upbound/provider-aws/apis/ec2/v1beta1.LaunchTemplate",
 			Extractor: common.PathARNExtractor,
 		}

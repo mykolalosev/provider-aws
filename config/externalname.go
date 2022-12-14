@@ -1558,6 +1558,11 @@ var ExternalNameConfigs = map[string]config.ExternalName{
 	// imported using the service action ID. which has provider-generated
 	// random parts: act-f1w12eperfslh
 	"aws_servicecatalog_service_action": config.IdentifierFromProvider,
+
+	// gamelift
+	//
+	// GameLift Game Server Group can be imported using the name
+	"aws_gamelift_game_server_group": config.ParameterAsIdentifier("game_server_group_name"),
 }
 
 func lambdaFunctionURL() config.ExternalName {

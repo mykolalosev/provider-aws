@@ -1,0 +1,26 @@
+apiVersion: gamelift.aws.upbound.io/v1beta1
+kind: GameServerGroup
+metadata:
+  annotations:
+    meta.upbound.io/example-id: gamelift/v1beta1/gameservergroup
+  labels:
+    testing.upbound.io/example-name: example
+  name: example
+spec:
+  forProvider:
+    instanceDefinition:
+    - instanceType: c5.large
+    - instanceType: c5a.large
+    launchTemplate:
+    - idSelector:
+        matchLabels:
+          testing.upbound.io/example-name: example
+    maxSize: 1
+    minSize: 1
+    region: us-west-1
+    roleArnSelector:
+      matchLabels:
+        testing.upbound.io/example-name: example
+
+---
+
